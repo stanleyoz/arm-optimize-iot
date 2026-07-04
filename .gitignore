@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+*.egg
+.pytest_cache/
+
+# Environment
+venv/
+.env
+
+# Build
+llama.cpp/build/
+bin/
+*.o
+*.so
+
+# Model files (large — download, don't commit)
+models/*.gguf
+models/**/*.gguf
+models/*.bin
+models/**/*.bin
+models/*.safetensors
+models/**/*.safetensors
+models/*.pt
+models/**/*.pt
+!models/.gitkeep
+
+# Generated data
+data/*.csv
+!data/.gitkeep
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
