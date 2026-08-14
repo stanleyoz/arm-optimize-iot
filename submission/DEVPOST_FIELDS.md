@@ -85,12 +85,12 @@ The interesting part isn't the architecture, it's the optimization chain. We sta
 5.8 seconds p99 and got to 0.95 seconds. Every step was measured independently:
 
   FP16 -> Q4_K_M quantization       949 MB -> 380 MB          2.5x memory
-  n_threads=1 -> n_threads=4 (!)    16.1 -> 27.9 tok/s        1.7x generation
   max_tokens 128 -> 25              ~8.5s -> ~1.6s per call   5.3x per call
   lazy load -> eager load + warmup  5,833 -> 1,825 ms p99     3.2x cold start
-  terse few-shot + "}" stop token   1,825 -> 950 ms p99     1.3x, and fixes JSON
+  terse few-shot + "}" stop token   1,825 -> 1,359 ms p99   1.3x, and fixes JSON
   generic pip -> native NEON build  4.0 -> 28.4 tok/s         7x prompt processing
-  hybrid threshold gate               787 ->  67 ms avg/window 11.7x system level
+  n_threads=1 -> n_threads=4        1,359 ->   950 ms p99   1.4x
+  hybrid threshold gate               787 ->    67 ms avg/win 11.7x system level
 
 Three of those are counterintuitive enough to be worth calling out.
 
@@ -119,7 +119,7 @@ entirely through prompt shape, which matters a lot when your whole deployment bu
 The third one is that example LENGTH is a latency parameter. Our few-shot examples had
 long, well-written reasons, so the model wrote long reasons too — and ran past the token
 budget that keeps us under two seconds, truncating mid-object every single time. Shortening
-the examples cut p99 by 875 ms AND turned a 0% JSON parse rate into 100%. The prose style
+the examples cut p99 by 466 ms AND turned a 0% JSON parse rate into 100%. The prose style
 of your examples is a performance decision, which is not where you expect to find one.
 
 ## Challenges we ran into
@@ -168,7 +168,7 @@ comparison cost us the headline and we're publishing it anyway.
 ## What we learned
 
 Optimization on ARM is mostly about finding the thing that isn't the model. Quantization
-got us 2.5x on memory, which everyone expects. But the GIL discovery, the token budget,
+got us 2.5x on memory, which everyone expects. But the thread reversal, the token budget,
 the cold start, and the length of our prose examples together account for far more of the
 actual latency win — and none of them are model problems. The largest single gain, 11.7x
 at the system level, came from the architectural decision to not call the model at all for
@@ -221,8 +221,18 @@ https://github.com/stanleyoz/arm-optimize-iot
 
 ## Video demo link
 
+The finished video is committed at `video/edge-triage-demo.mp4` (2:00, 1920x1080, 8.3 MB).
+
+**You need to upload it** — I have no way to publish to YouTube from here. Steps:
+
+1. Upload `video/edge-triage-demo.mp4` to YouTube
+2. Set visibility to **Public** or **Unlisted** (Devpost requires a publicly reachable link;
+   Public is the safer read of the rules)
+3. Title suggestion: `Edge Triage - a 0.5B LLM on a Raspberry Pi 5`
+4. Paste the watch URL into the Devpost "Video demo link" field
+
 ```
-TODO — fill in after upload
+TODO - paste YouTube URL here after upload
 ```
 
 ---
