@@ -43,3 +43,8 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# video build intermediates
+video/_work/
+video/_chk_*.png
+video/_frame_check.png
