@@ -64,13 +64,19 @@ class LlmTriage:
         self,
         model_path: str | Path,
         n_ctx: int = 512,
+        n_threads: int = 4,
         verbose: bool = False,
     ):
+        # n_threads=4 measured at 27.9 tok/s vs 16.1 tok/s at n_threads=1 on a
+        # Cortex-A76 with llama-cpp-python 0.3.32. Earlier versions of the bindings
+        # did suffer GIL contention that made single-thread faster; that is no longer
+        # true, so the old n_threads=1 workaround now costs 1.7x. Lower this if the
+        # host shares cores with another workload.
         self.model_path = Path(model_path)
         self.llm = Llama(
             model_path=str(self.model_path),
             n_ctx=n_ctx,
-            n_threads=1,  # 1 thread avoids GIL contention on ARM
+            n_threads=n_threads,
             verbose=verbose,
         )
         self._warmup()

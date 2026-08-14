@@ -1,114 +1,114 @@
-[  4.482s] model loaded + warmed up
+[  4.370s] model loaded + warmed up
 [ALERT] HIGH: humidity spike 100%
-[  1.364s] ALERT HIGH   llm= 1359.1ms thr= 0.04ms [ok] humidity spike 100%
+[  0.954s] ALERT HIGH   llm=  949.8ms thr= 0.04ms [ok] humidity spike 100%
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[  2.420s] ALERT MEDIUM llm= 1056.2ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[  1.712s] ALERT MEDIUM llm=  757.3ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[  3.476s] ALERT MEDIUM llm= 1055.8ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[  2.471s] ALERT MEDIUM llm=  757.9ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] HIGH: sensor fault, invalid reading
-[  4.684s] ALERT HIGH   llm= 1207.6ms thr= 0.03ms [ok] sensor fault, invalid reading
+[  3.324s] ALERT HIGH   llm=  853.1ms thr= 0.03ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[  5.811s] ALERT HIGH   llm= 1125.9ms thr= 0.03ms [ok] sensor fault, invalid reading
+[  4.100s] ALERT HIGH   llm=  776.0ms thr= 0.03ms [ok] sensor fault, invalid reading
 [ALERT] LOW: Low-severity threshold: People count 20 exceeds 10
-[  5.811s] ALERT LOW    llm=    0.0ms thr= 0.03ms [ok] Low-severity threshold: People count 20 exceeds 10
+[  4.101s] ALERT LOW    llm=    0.0ms thr= 0.04ms [ok] Low-severity threshold: People count 20 exceeds 10
 [ALERT] HIGH: sensor fault, invalid reading
-[  6.918s] ALERT HIGH   llm= 1106.9ms thr= 0.02ms [ok] sensor fault, invalid reading
+[  4.855s] ALERT HIGH   llm=  753.6ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[  8.021s] ALERT MEDIUM llm= 1102.2ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[  5.657s] ALERT MEDIUM llm=  802.6ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] LOW: Low-severity threshold: People count 21 exceeds 10
-[  8.021s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 21 exceeds 10
+[  5.658s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 21 exceeds 10
 [ALERT] HIGH: sensor fault, invalid reading
-[  9.229s] ALERT HIGH   llm= 1207.5ms thr= 0.02ms [ok] sensor fault, invalid reading
+[  6.512s] ALERT HIGH   llm=  853.8ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 10.210s] ALERT HIGH   llm=  980.4ms thr= 0.02ms [ok] sensor fault, invalid reading
+[  7.138s] ALERT HIGH   llm=  625.8ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[ 11.312s] ALERT MEDIUM llm= 1102.5ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[  7.940s] ALERT MEDIUM llm=  801.7ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] HIGH: sensor fault, invalid reading
-[ 12.519s] ALERT HIGH   llm= 1205.7ms thr= 0.02ms [ok] sensor fault, invalid reading
+[  8.794s] ALERT HIGH   llm=  854.0ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] LOW: Low-severity threshold: People count 26 exceeds 10
-[ 12.519s] ALERT LOW    llm=    0.0ms thr= 0.04ms [ok] Low-severity threshold: People count 26 exceeds 10
+[  8.795s] ALERT LOW    llm=    0.0ms thr= 0.04ms [ok] Low-severity threshold: People count 26 exceeds 10
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[ 13.623s] ALERT MEDIUM llm= 1101.4ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[  9.596s] ALERT MEDIUM llm=  801.2ms thr= 0.03ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] LOW: Low-severity threshold: People count 27 exceeds 10
-[ 13.624s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 27 exceeds 10
+[  9.596s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 27 exceeds 10
 [ALERT] LOW: Low-severity threshold: People count 30 exceeds 10
-[ 13.624s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 30 exceeds 10
+[  9.597s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 30 exceeds 10
 [ALERT] LOW: Low-severity threshold: People count 17 exceeds 10
-[ 13.624s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 17 exceeds 10
+[  9.597s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 17 exceeds 10
 [ALERT] LOW: Low-severity threshold: People count 26 exceeds 10
-[ 13.624s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 26 exceeds 10
+[  9.597s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 26 exceeds 10
 [ALERT] LOW: Low-severity threshold: People count 14 exceeds 10
-[ 13.625s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 14 exceeds 10
+[  9.597s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 14 exceeds 10
 [ALERT] HIGH: humidity spike 100%
-[ 14.936s] ALERT HIGH   llm= 1310.7ms thr= 0.02ms [ok] humidity spike 100%
+[ 10.503s] ALERT HIGH   llm=  905.5ms thr= 0.02ms [ok] humidity spike 100%
 [ALERT] HIGH: sensor fault, invalid reading
-[ 16.141s] ALERT HIGH   llm= 1205.1ms thr= 0.04ms [ok] sensor fault, invalid reading
+[ 11.356s] ALERT HIGH   llm=  852.1ms thr= 0.04ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 17.269s] ALERT HIGH   llm= 1128.0ms thr= 0.03ms [ok] sensor fault, invalid reading
+[ 12.131s] ALERT HIGH   llm=  774.8ms thr= 0.03ms [ok] sensor fault, invalid reading
 [ALERT] LOW: Low-severity threshold: People count 15 exceeds 10
-[ 17.270s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 15 exceeds 10
+[ 12.131s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 15 exceeds 10
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[ 18.372s] ALERT MEDIUM llm= 1102.2ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[ 12.934s] ALERT MEDIUM llm=  802.6ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] LOW: Low-severity threshold: People count 24 exceeds 10
-[ 18.373s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 24 exceeds 10
+[ 12.935s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 24 exceeds 10
 [ALERT] HIGH: sensor fault, invalid reading
-[ 19.580s] ALERT HIGH   llm= 1206.4ms thr= 0.02ms [ok] sensor fault, invalid reading
+[ 13.789s] ALERT HIGH   llm=  853.0ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 20.689s] ALERT HIGH   llm= 1107.7ms thr= 0.03ms [ok] sensor fault, invalid reading
+[ 14.547s] ALERT HIGH   llm=  753.9ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 21.796s] ALERT HIGH   llm= 1107.4ms thr= 0.03ms [ok] sensor fault, invalid reading
+[ 15.298s] ALERT HIGH   llm=  751.2ms thr= 0.03ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 22.904s] ALERT HIGH   llm= 1107.2ms thr= 0.04ms [ok] sensor fault, invalid reading
+[ 16.051s] ALERT HIGH   llm=  752.2ms thr= 0.04ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 24.029s] ALERT HIGH   llm= 1125.0ms thr= 0.02ms [ok] sensor fault, invalid reading
+[ 16.824s] ALERT HIGH   llm=  773.1ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 25.156s] ALERT HIGH   llm= 1125.9ms thr= 0.02ms [ok] sensor fault, invalid reading
+[ 17.598s] ALERT HIGH   llm=  773.1ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 26.262s] ALERT HIGH   llm= 1105.7ms thr= 0.02ms [ok] sensor fault, invalid reading
+[ 18.352s] ALERT HIGH   llm=  753.5ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 27.369s] ALERT HIGH   llm= 1106.5ms thr= 0.03ms [ok] sensor fault, invalid reading
+[ 19.104s] ALERT HIGH   llm=  751.6ms thr= 0.03ms [ok] sensor fault, invalid reading
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[ 28.472s] ALERT MEDIUM llm= 1102.2ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[ 19.910s] ALERT MEDIUM llm=  802.6ms thr= 0.03ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] HIGH: Temperature -99.9C below 0.0C (LLM assessed as benign: sensor fault, invalid reading)
-[ 29.687s] ALERT HIGH   llm= 1214.9ms thr= 0.02ms [ok] Temperature -99.9C below 0.0C (LLM assessed as benign: sensor fault, i
+[ 20.774s] ALERT HIGH   llm=  863.5ms thr= 0.03ms [ok] Temperature -99.9C below 0.0C (LLM assessed as benign: sensor fault, i
 [ALERT] HIGH: sensor fault, invalid reading
-[ 30.809s] ALERT HIGH   llm= 1117.9ms thr= 0.03ms [ok] sensor fault, invalid reading
+[ 21.539s] ALERT HIGH   llm=  764.9ms thr= 0.03ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 31.915s] ALERT HIGH   llm= 1106.0ms thr= 0.04ms [ok] sensor fault, invalid reading
+[ 22.294s] ALERT HIGH   llm=  754.4ms thr= 0.05ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 33.022s] ALERT HIGH   llm= 1106.0ms thr= 0.03ms [ok] sensor fault, invalid reading
+[ 23.047s] ALERT HIGH   llm=  752.1ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 34.150s] ALERT HIGH   llm= 1126.9ms thr= 0.03ms [ok] sensor fault, invalid reading
+[ 23.821s] ALERT HIGH   llm=  772.2ms thr= 0.03ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: Temperature -99.9C below 0.0C (LLM assessed as benign: sensor fault, invalid reading)
-[ 35.287s] ALERT HIGH   llm= 1136.2ms thr= 0.04ms [ok] Temperature -99.9C below 0.0C (LLM assessed as benign: sensor fault, i
+[ 24.594s] ALERT HIGH   llm=  773.4ms thr= 0.04ms [ok] Temperature -99.9C below 0.0C (LLM assessed as benign: sensor fault, i
 [ALERT] LOW: Low-severity threshold: People count 28 exceeds 10
-[ 35.287s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 28 exceeds 10
+[ 24.595s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 28 exceeds 10
 [ALERT] LOW: Low-severity threshold: People count 25 exceeds 10
-[ 35.287s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 25 exceeds 10
+[ 24.595s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 25 exceeds 10
 [ALERT] LOW: Low-severity threshold: People count 21 exceeds 10
-[ 35.287s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 21 exceeds 10
+[ 24.595s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 21 exceeds 10
 [ALERT] HIGH: sensor fault, invalid reading
-[ 36.418s] ALERT HIGH   llm= 1126.7ms thr= 0.02ms [ok] sensor fault, invalid reading
+[ 25.371s] ALERT HIGH   llm=  772.6ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[ 37.519s] ALERT MEDIUM llm= 1101.3ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[ 26.173s] ALERT MEDIUM llm=  801.2ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] HIGH: sensor fault, invalid reading
-[ 38.727s] ALERT HIGH   llm= 1206.6ms thr= 0.02ms [ok] sensor fault, invalid reading
+[ 27.028s] ALERT HIGH   llm=  854.6ms thr= 0.02ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 39.833s] ALERT HIGH   llm= 1105.7ms thr= 0.02ms [ok] sensor fault, invalid reading
+[ 27.782s] ALERT HIGH   llm=  753.1ms thr= 0.03ms [ok] sensor fault, invalid reading
 [ALERT] HIGH: sensor fault, invalid reading
-[ 40.940s] ALERT HIGH   llm= 1106.5ms thr= 0.04ms [ok] sensor fault, invalid reading
+[ 28.535s] ALERT HIGH   llm=  752.9ms thr= 0.04ms [ok] sensor fault, invalid reading
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[ 42.041s] ALERT MEDIUM llm= 1100.8ms thr= 0.04ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[ 29.336s] ALERT MEDIUM llm=  801.1ms thr= 0.04ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[ 43.098s] ALERT MEDIUM llm= 1055.9ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[ 30.093s] ALERT MEDIUM llm=  755.7ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] MEDIUM: Humidity 99.6% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[ 44.089s] ALERT MEDIUM llm=  991.2ms thr= 0.04ms [ok] Humidity 99.6% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[ 30.785s] ALERT MEDIUM llm=  691.8ms thr= 0.04ms [ok] Humidity 99.6% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] LOW: Low-severity threshold: People count 30 exceeds 10
-[ 44.089s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 30 exceeds 10
+[ 30.785s] ALERT LOW    llm=    0.0ms thr= 0.02ms [ok] Low-severity threshold: People count 30 exceeds 10
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[ 45.146s] ALERT MEDIUM llm= 1055.8ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[ 31.543s] ALERT MEDIUM llm=  756.9ms thr= 0.02ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 [ALERT] MEDIUM: Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
-[ 46.224s] ALERT MEDIUM llm= 1077.5ms thr= 0.03ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
+[ 32.322s] ALERT MEDIUM llm=  778.9ms thr= 0.04ms [ok] Humidity 100.0% exceeds 90.0% (LLM assessed as benign: normal, empty)
 
 === RESULTS ===
 windows                  480
@@ -116,13 +116,13 @@ threshold_triggers       55
 llm_calls                41
 alerts                   55
 fast_path_skips          14
-wall_seconds             46.2
-llm_p50_ms               1106.9
-llm_p95_ms               1214.9
-llm_p99_ms               1359.1
-llm_max_ms               1359.1
-llm_mean_ms              1126.5
-thr_max_ms               0.0535
+wall_seconds             32.3
+llm_p50_ms               773.1
+llm_p95_ms               863.5
+llm_p99_ms               949.8
+llm_max_ms               949.8
+llm_mean_ms              787.4
+thr_max_ms               0.0534
 over_budget_2000ms       0
-effective_avg_ms         96.2
-[LatencyMonitor] p50=1102.5ms  p95=1215.0ms  p99=1359.1ms  max=1359.1ms  exceeded=0/55  budget=2000.0ms
+effective_avg_ms         67.3
+[LatencyMonitor] p50=756.9ms  p95=863.5ms  p99=949.9ms  max=949.9ms  exceeded=0/55  budget=2000.0ms

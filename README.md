@@ -5,9 +5,9 @@
 **Base Model:** Qwen2-0.5B → GGUF Q4_K_M (380 MB)  
 **Inference Engine:** llama.cpp built from source with NEON for Cortex-A76  
 **Target Device:** Raspberry Pi 5 (4× Cortex-A76 @ 2.4 GHz, 8 GB RAM)  
-**Pipeline:** Threshold rules (<0.1ms) → LLM triage (Qwen2-0.5B, ~1.1s) → JSON alert
+**Pipeline:** Threshold rules (<0.1ms) → LLM triage (Qwen2-0.5B, ~0.8s) → JSON alert
 
-**Key Result:** p99 LLM triage latency **1,359 ms** — 41/41 LLM calls under the 2-second budget, 0 exceeded, 41/41 producing valid JSON.
+**Key Result:** p99 LLM triage latency **950 ms** — 41/41 LLM calls under the 2-second budget, 0 exceeded, 41/41 producing valid JSON.
 
 **Measured on the target device**, not estimated: every number below comes from a run on a
 Raspberry Pi 5 over 4 hours of sensor data. See [`capture/`](capture/) for the raw logs.
@@ -31,7 +31,7 @@ Raspberry Pi 5 over 4 hours of sensor data. See [`capture/`](capture/) for the r
                                                     │
                                          medium/high severity      41 windows
                                                     │
-                                         [LLM Triage: ~1.1s]
+                                         [LLM Triage: ~0.8s]
                                                     │
                                     grades severity + writes reason
                                     (does NOT veto — see accuracy)
@@ -55,15 +55,21 @@ python -m src.alerting.alert_engine              # Run pipeline
 
 ## Optimization Summary
 
-| Optimization | Before | After | Gain |
-|---|---|---|---|
-| FP16 → Q4_K_M quantization | 949 MB / 949 MB RAM | 380 MB / 297 MB RAM | 2.5× memory reduction |
-| GIL-aware `n_threads=1` | 4.0 tok/s (4 threads) | 15.1 tok/s (1 thread) | 3.8× generation speed |
-| `max_tokens=128` → 25 | ~8.5s per call | ~1.6s per call | 5.3× per-call reduction |
-| Lazy load → eager + warmup | 5,833 ms p99 | 1,825 ms p99 | 3.2× cold-start elimination |
-| Terse few-shot + `}` stop token | 1,825 ms p99 | 1,359 ms p99 | 1.3× — and fixed truncated JSON |
-| Hybrid pipeline gate | 1,127 ms avg per window | 96 ms effective avg | 11.7× system-level |
-| Generic pip → native NEON build | 4.0 tok/s | 28.4 tok/s (4T native) | 7× prompt processing |
+| Optimization | Before | After | Gain | Re-measured 2026-08-14? |
+|---|---|---|---|---|
+| FP16 → Q4_K_M quantization | 949 MB | 380 MB | 2.5× memory | size yes, tok/s no |
+| `max_tokens=128` → 25 | ~8.5 s/call | ~1.6 s/call | 5.3× per call | no (July) |
+| Lazy load → eager + warmup | 5,833 ms p99 | 1,825 ms p99 | 3.2× cold start | yes |
+| Terse few-shot + `}` stop token | 1,825 ms p99 | 1,359 ms p99 | 1.3×, and fixed truncated JSON | yes |
+| `n_threads=1` → `n_threads=4` | 1,359 ms p99 | **950 ms p99** | 1.4× | yes |
+| Hybrid threshold gate | 787 ms avg/window | 67 ms effective avg | 11.7× system-level | yes |
+| Generic pip → native NEON build | — | 28.4 tok/s (4T native) | 7× prompt processing | no (July; `llama-bench` not rebuilt) |
+
+The `n_threads` row **reverses this project's own earlier finding.** Older llama-cpp-python
+genuinely did suffer GIL contention that made `n_threads=1` faster, and the code was built
+around that. Re-measured on 0.3.32: 16.1 tok/s at 1 thread, 24.7 at 2, **27.9 at 4**. The
+workaround had become a 1.7× pessimisation still shipping in the repo. An optimisation is
+only valid against the version you measured it on.
 
 ## Benchmark Results (Raspberry Pi 5)
 
@@ -73,15 +79,15 @@ low-severity and took the sub-0.1 ms fast path).
 
 | Metric | Threshold Check | LLM Triage | Total per Alert |
 |---|---|---|---|
-| p50 | <0.1 ms | 1,107 ms | 1,107 ms |
-| p95 | <0.1 ms | 1,215 ms | 1,215 ms |
-| **p99** | **<0.1 ms** | **1,359 ms** | **1,359 ms** |
-| Max | 0.05 ms | 1,359 ms | 1,359 ms |
+| p50 | <0.1 ms | 773 ms | 773 ms |
+| p95 | <0.1 ms | 864 ms | 864 ms |
+| **p99** | **<0.1 ms** | **950 ms** | **950 ms** |
+| Max | 0.05 ms | 950 ms | 950 ms |
 | Calls | 55 triggered windows | 41 LLM calls | 55 alerts |
 | Budget exceeded (2,000 ms) | 0/55 | 0/41 | **0/41** |
 | Valid JSON | — | **41/41** | — |
 
-Because the threshold gate absorbs 88% of windows, the **effective average cost is 96 ms
+Because the threshold gate absorbs 88% of windows, the **effective average cost is 67 ms
 per window** across the whole run.
 
 ## Detection Accuracy — and an honest negative result
@@ -122,7 +128,11 @@ LICENSE              # Apache 2.0
 3. **Terse few-shot reasons** — the token budget that keeps us under 2 s only fits a short
    verdict. Verbose examples teach the model to write long reasons that get truncated
    mid-object and never parse, so example length is a latency parameter, not a style choice.
-4. **`n_threads=1`** in llama-cpp-python — Python GIL makes multi-thread 3.8× slower than single-thread on ARM small cores
+4. **`n_threads=4`, not 1** — this reverses the project's own earlier finding. Older
+   llama-cpp-python really did suffer GIL contention that made single-thread faster, and
+   we optimised for it. Re-measured on 0.3.32: 27.9 tok/s at 4 threads vs 16.1 at 1. The
+   workaround had quietly become a 1.7× pessimisation. Re-test your optimisations against
+   the version you actually ship.
 5. **Eager load + model warmup** — eliminates 5.8s cold-start outlier; warmup uses full few-shot prompt to trigger llama.cpp's internal allocations
 6. **Hybrid architecture** — threshold rules filter 88% of windows in <0.1ms; low-severity bypass skips another 14 of 55 potential LLM calls
 7. **Prompt carries min *and* max** — the `-99.9` sensor-fault sentinel lands in the

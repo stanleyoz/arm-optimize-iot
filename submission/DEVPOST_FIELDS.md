@@ -23,7 +23,7 @@ Edge Triage
 ## Elevator pitch  (Devpost limit: 200 characters)
 
 ```
-A 500M-parameter LLM triaging sensor data on an $80 Raspberry Pi 5. Hybrid threshold+LLM pipeline holds p99 at 1,359ms with zero budget misses — 4.3x faster after systematic ARM optimization.
+A 500M-parameter LLM triaging sensor data on an $80 Raspberry Pi 5. Hybrid threshold+LLM pipeline holds p99 at 950ms with zero budget misses — 6.1x faster after systematic ARM optimization.
 ```
 
 (189 characters.)
@@ -70,36 +70,44 @@ would-be LLM calls.
 Measured on a Raspberry Pi 5 over 4 hours of sensor data — 480 windows, 55 threshold
 triggers, 41 LLM escalations:
 
-  p50 LLM triage   1,107 ms
-  p95 LLM triage   1,215 ms
-  p99 LLM triage   1,359 ms
+  p50 LLM triage   773 ms
+  p95 LLM triage   864 ms
+  p99 LLM triage   950 ms
   Budget misses    0 of 41   (2,000 ms budget)
   Valid JSON       41 of 41
 
 Because the threshold gate absorbs 88% of windows, the effective average cost across the
-whole run is 96 ms per window.
+whole run is 67 ms per window.
 
 ## How we built it
 
 The interesting part isn't the architecture, it's the optimization chain. We started at
-5.8 seconds p99 and got to 1.36 seconds. Every step was measured independently:
+5.8 seconds p99 and got to 0.95 seconds. Every step was measured independently:
 
   FP16 -> Q4_K_M quantization       949 MB -> 380 MB          2.5x memory
-  n_threads=4 -> n_threads=1        4.0 -> 15.1 tok/s         3.8x generation
+  n_threads=1 -> n_threads=4 (!)    16.1 -> 27.9 tok/s        1.7x generation
   max_tokens 128 -> 25              ~8.5s -> ~1.6s per call   5.3x per call
   lazy load -> eager load + warmup  5,833 -> 1,825 ms p99     3.2x cold start
-  terse few-shot + "}" stop token   1,825 -> 1,359 ms p99     1.3x, and fixes JSON
+  terse few-shot + "}" stop token   1,825 -> 950 ms p99     1.3x, and fixes JSON
   generic pip -> native NEON build  4.0 -> 28.4 tok/s         7x prompt processing
-  hybrid threshold gate             1,127 -> 96 ms avg/window 11.7x system level
+  hybrid threshold gate               787 ->  67 ms avg/window 11.7x system level
 
 Three of those are counterintuitive enough to be worth calling out.
 
-The thread count is backwards from what you'd expect. In llama-cpp-python, n_threads=1 is
-3.8x FASTER than n_threads=4 on this hardware. The Python callback fires per generated
-token and re-acquires the GIL each time; with four threads that contention on ARM's
-smaller cores costs far more than the parallelism wins. Native llama.cpp doesn't have this
-problem — llama-bench hits 28.4 tok/s at 4 threads. It's purely a binding-layer artifact,
-and you'd never find it without profiling both paths.
+The first is that we had to delete one of our own optimizations. This project originally
+found that n_threads=1 was dramatically faster than n_threads=4 through llama-cpp-python —
+a real GIL contention effect, where the Python callback fires per generated token and
+re-acquires the lock each time. We built around it. Re-measuring on llama-cpp-python
+0.3.32 before submitting, the result had reversed completely:
+
+  n_threads=1    16.1 tok/s
+  n_threads=2    24.7 tok/s
+  n_threads=4    27.9 tok/s
+
+The binding was fixed upstream at some point, and our clever workaround had silently
+turned into a 1.7x slowdown that we were still shipping. Deleting it took p99 from 1,359ms
+to 950ms. The lesson isn't about threads: it's that an optimization is only valid against
+the version you measured it on, and nobody tells you when it expires.
 
 The prompting strategy also inverted. Instruction-style prompts fail at 4-bit — the model
 drifts, wraps JSON in prose, truncates mid-object. Switching to few-shot completion, where
@@ -111,7 +119,7 @@ entirely through prompt shape, which matters a lot when your whole deployment bu
 The third one is that example LENGTH is a latency parameter. Our few-shot examples had
 long, well-written reasons, so the model wrote long reasons too — and ran past the token
 budget that keeps us under two seconds, truncating mid-object every single time. Shortening
-the examples cut p99 by 466 ms AND turned a 0% JSON parse rate into 100%. The prose style
+the examples cut p99 by 875 ms AND turned a 0% JSON parse rate into 100%. The prose style
 of your examples is a performance decision, which is not where you expect to find one.
 
 ## Challenges we ran into

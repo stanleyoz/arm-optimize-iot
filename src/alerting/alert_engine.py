@@ -60,6 +60,7 @@ class AlertEngine:
         self,
         model_path: str | Path = "models/qwen2-0.5b-q4_k_m.gguf",
         n_ctx: int = 1024,
+        n_threads: int = 4,
         threshold_config: Optional[ThresholdConfig] = None,
         latency_budget_ms: float = 2000.0,
         log_file: str | Path = "alerts.log",
@@ -71,6 +72,7 @@ class AlertEngine:
         self.verbose = verbose
 
         self._n_ctx = n_ctx
+        self._n_threads = n_threads
         self._model_path = Path(model_path)
 
         # Eager-load LLM model at startup to avoid cold-start latency
@@ -79,7 +81,9 @@ class AlertEngine:
                 f"Model not found at {self._model_path}. "
                 "Run download_model.py and quantize_model.py first."
             )
-        self._llm: LlmTriage = LlmTriage(self._model_path, n_ctx=self._n_ctx, verbose=self.verbose)
+        self._llm: LlmTriage = LlmTriage(
+            self._model_path, n_ctx=self._n_ctx, n_threads=self._n_threads, verbose=self.verbose
+        )
 
     def _get_llm(self) -> LlmTriage:
         return self._llm

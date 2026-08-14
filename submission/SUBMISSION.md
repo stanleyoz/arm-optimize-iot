@@ -22,7 +22,7 @@ The core insight is a **hybrid architecture**: fast rule-based threshold checks 
 
 1. **LLM on $80 ARM hardware** — Demonstrates that a 0.5B-parameter transformer can deliver useful inference on a Cortex-A76 CPU at 4W TDP, without GPU or NPU acceleration. This challenges the assumption that edge AI requires specialized hardware.
 
-2. **Systematic optimization, not just model swap** — The 5.8s → 1.36s p99 latency improvement came from a chain of independent optimizations (quantization 2.5×, thread tuning 3.8×, token budget 5.3×, cold-start elimination 3.2×, prompt-shape 1.3×, hybrid pipeline 11.7× system-level). Each is measurable and reproducible on the device.
+2. **Systematic optimization, not just model swap** — The 5.8s → 0.95s p99 latency improvement came from a chain of independent optimizations (quantization 2.5×, thread tuning 1.7×, token budget 5.3×, cold-start elimination 3.2×, prompt-shape 1.3×, hybrid pipeline 11.7× system-level). Each is measurable and reproducible on the device.
 
 3. **Prompt engineering replaces fine-tuning** — A few-shot completion strategy achieved 41/41 valid JSON verdicts from a 4-bit quantized model without any LoRA or RLHF. The model was rewired purely through prompt structure.
 
@@ -35,7 +35,7 @@ The core insight is a **hybrid architecture**: fast rule-based threshold checks 
 | **Technological Implementation (40 pts)** | 1,000+ lines of Python with 34 unit tests; systematic optimization with p50/p95/p99 measured on-device at every step; accuracy scored against ground-truth labels rather than asserted |
 | **User/Developer Experience (15 pts)** | Single `./setup.sh` builds everything; `./benchmark.sh` reproduces all results; `SensorReader` accepts CSV/JSON/SQLite3; full deployment guide for RPi5 |
 | **Potential Impact (20 pts)** | Reusable template for any sensor-to-LLM edge pipeline; proves LLM viability on commodity ARM hardware; two documented dead ends other developers can skip |
-| **WOW Factor (25 pts)** | **500M-parameter LLM triaging sensor data on a $80 Raspberry Pi 5 — 41/41 calls under 2 seconds, p99=1,359ms, 41/41 valid JSON, 0 budget exceeded** |
+| **WOW Factor (25 pts)** | **500M-parameter LLM triaging sensor data on a $80 Raspberry Pi 5 — 41/41 calls under 2 seconds, p99=950ms, 41/41 valid JSON, 0 budget exceeded** |
 
 ---
 
@@ -59,7 +59,7 @@ The core insight is a **hybrid architecture**: fast rule-based threshold checks 
                                                          │
                                               medium/high severity
                                                          │
-                                              [LLM Triage: ~1.1s]
+                                              [LLM Triage: ~0.8s]
                                                          │
                                        grades severity + writes reason
                                        (does NOT veto -- see accuracy)
@@ -79,8 +79,8 @@ AlertResult(
     reason="humidity spike 100%",
     severity="high",
     threshold_time_ms=0.04,
-    llm_time_ms=1359.1,
-    total_time_ms=1359.1,
+    llm_time_ms=949.8,
+    total_time_ms=949.8,
     triggered_rules=[TriggeredRule(name="humidity_high", ...)],
     llm_raw={"alert": True, "reason": "humidity spike 100%", "severity": "high"},
     latency_budget_exceeded=False,
@@ -96,15 +96,15 @@ the sub-0.1 ms fast path, so **41 escalated to the LLM**. Percentiles below are 
 
 | Metric | Threshold | LLM Triage | Total per Alert |
 |---|---|---|---|
-| p50 | <0.1 ms | 1,107 ms | 1,107 ms |
-| p95 | <0.1 ms | 1,215 ms | 1,215 ms |
-| **p99** | **<0.1 ms** | **1,359 ms** | **1,359 ms** |
-| **Max** | **0.05 ms** | **1,359 ms** | **1,359 ms** |
+| p50 | <0.1 ms | 773 ms | 773 ms |
+| p95 | <0.1 ms | 864 ms | 864 ms |
+| **p99** | **<0.1 ms** | **950 ms** | **950 ms** |
+| **Max** | **0.05 ms** | **950 ms** | **950 ms** |
 | Calls | 55 triggered windows | 41 LLM calls | 55 alerts |
 | Budget exceeded (2,000 ms) | 0/55 | 0/41 | **0/41** |
 | Valid JSON | — | **41/41** | — |
 
-Effective average cost across all 480 windows: **96 ms**, because the gate absorbs 88% of them.
+Effective average cost across all 480 windows: **67 ms**, because the gate absorbs 88% of them.
 
 ### Detection accuracy (scored against ground-truth labels)
 
@@ -122,15 +122,21 @@ Raw logs for every number above are committed in [`capture/`](../capture/).
 
 ### All optimization gains at a glance
 
-| Optimization | Before | After | Improvement |
-|---|---|---|---|
-| FP16 → Q4_K_M quantization | 949 MB, — tok/s | 380 MB, 16.7 tok/s | 2.5× size, ~1.5× speed |
-| GIL-aware `n_threads=1` | 4.0 tok/s (4 threads) | 15.1 tok/s (1 thread) | 3.8× generation speed |
-| `max_tokens=128` → 25 | ~8.5s/call | ~1.6s/call | 5.3× per-call reduction |
-| Lazy load → eager + warmup | 5,833 ms p99 | 1,825 ms p99 | 3.2× cold-start |
-| Terse few-shot + `}` stop token | 1,825 ms p99 | 1,359 ms p99 | 1.3× — and fixed truncated JSON |
-| Hybrid threshold gate | 1,127 ms avg per window | 96 ms effective avg | 11.7× system-level |
-| Generic pip → native NEON build | 4.0 tok/s | 28.4 tok/s (4T native) | 7× prompt processing |
+| Optimization | Before | After | Gain | Re-measured 2026-08-14? |
+|---|---|---|---|---|
+| FP16 → Q4_K_M quantization | 949 MB | 380 MB | 2.5× memory | size yes, tok/s no |
+| `max_tokens=128` → 25 | ~8.5 s/call | ~1.6 s/call | 5.3× per call | no (July) |
+| Lazy load → eager + warmup | 5,833 ms p99 | 1,825 ms p99 | 3.2× cold start | yes |
+| Terse few-shot + `}` stop token | 1,825 ms p99 | 1,359 ms p99 | 1.3×, and fixed truncated JSON | yes |
+| `n_threads=1` → `n_threads=4` | 1,359 ms p99 | **950 ms p99** | 1.4× | yes |
+| Hybrid threshold gate | 787 ms avg/window | 67 ms effective avg | 11.7× system-level | yes |
+| Generic pip → native NEON build | — | 28.4 tok/s (4T native) | 7× prompt processing | no (July; `llama-bench` not rebuilt) |
+
+The `n_threads` row **reverses this project's own earlier finding.** Older llama-cpp-python
+genuinely did suffer GIL contention that made `n_threads=1` faster, and the code was built
+around that. Re-measured on 0.3.32: 16.1 tok/s at 1 thread, 24.7 at 2, **27.9 at 4**. The
+workaround had become a 1.7× pessimisation still shipping in the repo. An optimisation is
+only valid against the version you measured it on.
 
 ---
 
