@@ -245,3 +245,11 @@ TODO - paste YouTube URL here after upload
 - [ ] Track set to Physical AI
 - [ ] Thumbnail image uploaded
 - [ ] Deadline: Aug 14 2026, 4:00pm PDT = Aug 15, 07:00 AWST
+
+---
+
+## Additional info (judges & organizers)
+
+The four multi-select / scale questions and the free-text answer are drafted separately in
+[`DEVPOST_ADDITIONAL_INFO.md`](DEVPOST_ADDITIONAL_INFO.md). Note that the first four
+"appear in project gallery" — they are semi-public, not private feedback.
