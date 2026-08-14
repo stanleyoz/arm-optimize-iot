@@ -1,0 +1,29 @@
+{
+  "threshold_only": {
+    "tp": 54,
+    "fp": 1,
+    "fn": 24,
+    "tn": 401,
+    "precision": 0.982,
+    "recall": 0.692,
+    "f1": 0.812
+  },
+  "hybrid": {
+    "tp": 54,
+    "fp": 1,
+    "fn": 24,
+    "tn": 401,
+    "precision": 0.982,
+    "recall": 0.692,
+    "f1": 0.812
+  },
+  "missed_by_type": {
+    "temp_spike": 24
+  },
+  "caught_by_type": {
+    "people_surge": 15,
+    "humidity_spike": 16,
+    "temp_spike": 1,
+    "sensor_fault": 26
+  }
+}

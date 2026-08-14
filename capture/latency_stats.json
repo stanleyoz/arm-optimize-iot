@@ -1,0 +1,16 @@
+{
+  "windows": 480,
+  "threshold_triggers": 55,
+  "llm_calls": 41,
+  "alerts": 55,
+  "fast_path_skips": 14,
+  "wall_seconds": 46.2,
+  "llm_p50_ms": 1106.9,
+  "llm_p95_ms": 1214.9,
+  "llm_p99_ms": 1359.1,
+  "llm_max_ms": 1359.1,
+  "llm_mean_ms": 1126.5,
+  "thr_max_ms": 0.0535,
+  "over_budget_2000ms": 0,
+  "effective_avg_ms": 96.2
+}

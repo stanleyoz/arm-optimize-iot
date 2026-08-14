@@ -28,6 +28,17 @@ from .alert_actions import AlertLogger
 from .latency_monitor import LatencyMonitor
 
 
+# Severity is ordered by rank, never by string comparison: alphabetically "high"
+# sorts below "low", so max() over raw strings silently downgrades a high-severity
+# trigger to low whenever a low-severity rule fires alongside it.
+SEVERITY_RANK = {"low": 0, "medium": 1, "high": 2}
+
+
+def max_severity_of(severities) -> str:
+    """Highest severity by rank, defaulting to 'low' when empty."""
+    return max(severities, key=lambda s: SEVERITY_RANK.get(s, 0), default="low")
+
+
 @dataclass
 class AlertResult:
     """Result from a single alert pipeline run."""
@@ -96,7 +107,7 @@ class AlertEngine:
             )
 
         # Step 1.5: Skip LLM for low-severity-only triggers
-        max_severity = max((r.severity for r in triggered), default="low")
+        max_severity = max_severity_of(r.severity for r in triggered)
         if max_severity == "low":
             elapsed = (time.perf_counter() - start) * 1000
             result = AlertResult(
@@ -126,9 +137,23 @@ class AlertEngine:
             }
         llm_time = (time.perf_counter() - t1) * 1000
 
-        alert = llm_result.get("alert", True)
+        # The threshold layer owns the alert/no-alert decision; the LLM grades it and
+        # explains it. Measured on 480 windows against ground-truth labels, letting the
+        # model veto a threshold hit dropped recall from 0.692 to 0.500 (F1 0.812 ->
+        # 0.661) -- a 0.5B model at 4-bit is a worse detector than six tuned rules, but
+        # a useful severity grader and reason writer. Its verdict is kept in llm_raw
+        # for telemetry rather than discarded.
+        alert = True
         reason = llm_result.get("reason", "LLM triggered alert")
-        severity = llm_result.get("severity", "medium")
+
+        # The rules set a severity floor. The model may escalate but not downgrade --
+        # a "high" temperature breach stays high even if the model reads it as benign.
+        severity = max_severity_of([llm_result.get("severity", "medium"), max_severity])
+
+        # When the model disagrees with the rules, say so rather than emitting an
+        # alert whose reason reads as reassurance ("normal, empty").
+        if not llm_result.get("alert", True):
+            reason = f"{triggered[0].message} (LLM assessed as benign: {reason})"
 
         elapsed = (time.perf_counter() - start) * 1000
 

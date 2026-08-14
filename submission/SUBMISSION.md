@@ -16,26 +16,26 @@
 
 A real-time IoT sensor anomaly detection system that runs a **500M-parameter language model (Qwen2-0.5B)** on a **Raspberry Pi 5** to triage time-series data from temperature, humidity, and people-count sensors — all within a **2-second latency budget**.
 
-The core insight is a **hybrid architecture**: fast rule-based threshold checks (<0.1 ms) filter out 82% of normal windows, while a quantized LLM (380 MB Q4_K_M) analyzes the remaining ambiguous cases with contextual reasoning. This avoids the cost of running the LLM on every window while retaining intelligence for complex edge cases.
+The core insight is a **hybrid architecture**: fast rule-based threshold checks (<0.1 ms) filter out 88% of normal windows, while a quantized LLM (380 MB Q4_K_M) grades and explains the remainder. This avoids the cost of running the LLM on every window while keeping a human-readable verdict on the cases that matter.
 
 ### Why is it interesting?
 
 1. **LLM on $80 ARM hardware** — Demonstrates that a 0.5B-parameter transformer can deliver useful inference on a Cortex-A76 CPU at 4W TDP, without GPU or NPU acceleration. This challenges the assumption that edge AI requires specialized hardware.
 
-2. **Systematic optimization, not just model swap** — The 5.8s → 1.8s p99 latency improvement came from a chain of independent optimizations (quantization 2.5×, thread tuning 3.8×, token budget 5.3×, cold-start elimination 3.2×, hybrid pipeline 5.5× system-level). Each is measurable and reproducible.
+2. **Systematic optimization, not just model swap** — The 5.8s → 1.36s p99 latency improvement came from a chain of independent optimizations (quantization 2.5×, thread tuning 3.8×, token budget 5.3×, cold-start elimination 3.2×, prompt-shape 1.3×, hybrid pipeline 11.7× system-level). Each is measurable and reproducible on the device.
 
-3. **Prompt engineering replaces fine-tuning** — A few-shot completion strategy achieved 100% valid JSON output from a 4-bit quantized model without any LoRA or RLHF. The model was rewired purely through prompt structure.
+3. **Prompt engineering replaces fine-tuning** — A few-shot completion strategy achieved 41/41 valid JSON verdicts from a 4-bit quantized model without any LoRA or RLHF. The model was rewired purely through prompt structure.
 
-4. **Honest NPU analysis** — We tested and documented that the on-board Hailo-8 AI accelerator cannot accelerate LLM inference (CNN-only architecture). This saves other developers from pursuing a dead end.
+4. **Two honest negative results.** The on-board Hailo-8 accelerator cannot run LLM inference at all — it is a CNN engine with no attention primitives, no KV cache, and no autoregressive decode path. And more uncomfortably: **we measured the LLM against the threshold rules it was supposed to improve, and it lost.** Wired as a filter, the model dropped recall from 0.692 to 0.500. So we did not wire it as a filter. Both results are documented rather than buried.
 
 ### Why it should win
 
 | Judging Criterion | How we hit it |
 |---|---|
-| **Technological Implementation (40 pts)** | 1,000+ lines of production-quality Python with 34 unit tests; systematic optimization with p50/p95/p99 measurements at every step; clean modular architecture |
+| **Technological Implementation (40 pts)** | 1,000+ lines of Python with 34 unit tests; systematic optimization with p50/p95/p99 measured on-device at every step; accuracy scored against ground-truth labels rather than asserted |
 | **User/Developer Experience (15 pts)** | Single `./setup.sh` builds everything; `./benchmark.sh` reproduces all results; `SensorReader` accepts CSV/JSON/SQLite3; full deployment guide for RPi5 |
-| **Potential Impact (20 pts)** | Reusable template for any sensor-to-LLM edge pipeline; proves LLM viability on commodity ARM hardware; saves NPU exploration dead-end |
-| **WOW Factor (25 pts)** | **500M-parameter LLM doing real-time sensor triage on a $80 Raspberry Pi 5 — 41/41 alerts under 2 seconds, p99=1,841ms, 0 budget exceeded** |
+| **Potential Impact (20 pts)** | Reusable template for any sensor-to-LLM edge pipeline; proves LLM viability on commodity ARM hardware; two documented dead ends other developers can skip |
+| **WOW Factor (25 pts)** | **500M-parameter LLM triaging sensor data on a $80 Raspberry Pi 5 — 41/41 calls under 2 seconds, p99=1,359ms, 41/41 valid JSON, 0 budget exceeded** |
 
 ---
 
@@ -46,9 +46,9 @@ The core insight is a **hybrid architecture**: fast rule-based threshold checks 
 ```
 [Sensor CSV stream] ──> [30s sliding window] ──> [Threshold rules: <0.1ms]
                                                          │
-                                                   82% pass ──> No alert
+                                                 425/480 pass ──> No alert
                                                          │
-                                                   18% trigger
+                                                  55/480 trigger
                                                          │
                                               ┌──────────┴──────────┐
                                               │ severity = "low"    │
@@ -59,9 +59,12 @@ The core insight is a **hybrid architecture**: fast rule-based threshold checks 
                                                          │
                                               medium/high severity
                                                          │
-                                              [LLM Triage: ~1.8s]
+                                              [LLM Triage: ~1.1s]
                                                          │
-                                              [JSON decision output]
+                                       grades severity + writes reason
+                                       (does NOT veto -- see accuracy)
+                                                         |
+                                              [JSON verdict: 41/41 valid]
                                                          │
                                               [AlertLogger: log/GPIO]
 ```
@@ -73,28 +76,49 @@ Each processed sensor window produces an `AlertResult` dataclass:
 ```
 AlertResult(
     alert=True,
-    reason="Temperature 42C exceeds threshold and room is occupied",
+    reason="humidity spike 100%",
     severity="high",
-    threshold_time_ms=0.08,
-    llm_time_ms=1812.3,
-    total_time_ms=1812.4,
-    triggered_rules=[TriggeredRule(name="temp_high", ...)],
-    llm_raw={"alert": True, "reason": "...", "severity": "high"},
+    threshold_time_ms=0.04,
+    llm_time_ms=1359.1,
+    total_time_ms=1359.1,
+    triggered_rules=[TriggeredRule(name="humidity_high", ...)],
+    llm_raw={"alert": True, "reason": "humidity spike 100%", "severity": "high"},
     latency_budget_exceeded=False,
 )
 ```
 
-The LLM always produces **valid JSON** with three fields: `alert` (bool), `reason` (string), `severity` ("low"/"medium"/"high"). The system degrades gracefully via brace-depth parsing and regex fallback if output is truncated.
+The LLM produced **valid JSON on 41 of 41 calls** in the measured run, with three fields: `alert` (bool), `reason` (string), `severity` ("low"/"medium"/"high"). The system degrades gracefully via brace-depth parsing and a regex salvage path if output is ever truncated. Note that `alert` is recorded for telemetry but does not gate the alert — see the accuracy section for why.
 
 ### Measured performance (Raspberry Pi 5, 4-hour synthetic data, 55 triggered windows)
 
+480 windows total. **55 crossed a threshold**; of those, 14 were low-severity and cleared on
+the sub-0.1 ms fast path, so **41 escalated to the LLM**. Percentiles below are over those 41 calls.
+
 | Metric | Threshold | LLM Triage | Total per Alert |
 |---|---|---|---|
-| p50 | <0.1 ms | 1,780 ms | 1,780 ms |
-| p95 | <0.1 ms | 1,826 ms | 1,826 ms |
-| **p99** | **<0.1 ms** | **1,841 ms** | **1,841 ms** |
-| **Max** | **<0.1 ms** | **1,841 ms** | **1,841 ms** |
-| Budget exceeded | 0/55 | 0/55 | **0/55** |
+| p50 | <0.1 ms | 1,107 ms | 1,107 ms |
+| p95 | <0.1 ms | 1,215 ms | 1,215 ms |
+| **p99** | **<0.1 ms** | **1,359 ms** | **1,359 ms** |
+| **Max** | **0.05 ms** | **1,359 ms** | **1,359 ms** |
+| Calls | 55 triggered windows | 41 LLM calls | 55 alerts |
+| Budget exceeded (2,000 ms) | 0/55 | 0/41 | **0/41** |
+| Valid JSON | — | **41/41** | — |
+
+Effective average cost across all 480 windows: **96 ms**, because the gate absorbs 88% of them.
+
+### Detection accuracy (scored against ground-truth labels)
+
+| Layer | Precision | Recall | F1 |
+|---|---|---|---|
+| Threshold rules only | 0.982 | 0.692 | 0.812 |
+| Hybrid (thresholds + LLM) | 0.982 | 0.692 | 0.812 |
+
+The LLM neither helps nor hurts detection, by design. We tried letting it veto threshold
+hits; recall fell to 0.500 and F1 to 0.661. A 0.5B model at 4-bit is a worse detector than
+six tuned rules, so the rules keep the decision and the model does what it is actually good
+at on this hardware: grading severity and writing a reason an operator can act on.
+
+Raw logs for every number above are committed in [`capture/`](../capture/).
 
 ### All optimization gains at a glance
 
@@ -103,8 +127,9 @@ The LLM always produces **valid JSON** with three fields: `alert` (bool), `reaso
 | FP16 → Q4_K_M quantization | 949 MB, — tok/s | 380 MB, 16.7 tok/s | 2.5× size, ~1.5× speed |
 | GIL-aware `n_threads=1` | 4.0 tok/s (4 threads) | 15.1 tok/s (1 thread) | 3.8× generation speed |
 | `max_tokens=128` → 25 | ~8.5s/call | ~1.6s/call | 5.3× per-call reduction |
-| Lazy load → eager + warmup | 5,833 ms p99 | 1,841 ms p99 | 3.2× cold-start |
-| Hybrid threshold gate | — | ~324 ms effective avg | 5.5× system-level |
+| Lazy load → eager + warmup | 5,833 ms p99 | 1,825 ms p99 | 3.2× cold-start |
+| Terse few-shot + `}` stop token | 1,825 ms p99 | 1,359 ms p99 | 1.3× — and fixed truncated JSON |
+| Hybrid threshold gate | 1,127 ms avg per window | 96 ms effective avg | 11.7× system-level |
 | Generic pip → native NEON build | 4.0 tok/s | 28.4 tok/s (4T native) | 7× prompt processing |
 
 ---
